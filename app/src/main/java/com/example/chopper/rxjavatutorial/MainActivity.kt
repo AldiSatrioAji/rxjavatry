@@ -15,74 +15,44 @@ import io.reactivex.schedulers.Schedulers
 
 class MainActivity : AppCompatActivity() {
 
-    val compositeDisposable = CompositeDisposable()
+    var disposable: Disposable? = null
     lateinit var animalsObservable: Observable<String>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        animalsObservable = Observable.fromArray(
-                "Ant", "Ape",
-                "Bat", "Bee", "Bear", "Butterfly",
-                "Cat", "Crab", "Cod",
-                "Dog", "Dove",
-                "Fox", "Frog"
-        )
-
-        compositeDisposable.add(
-                observeAnimals()
-                        .filter {
-                            it.startsWith("b")
-                        }
-                        .subscribeWith(object : DisposableObserver<String>() {
-                            override fun onComplete() {
-                                Toast.makeText(this@MainActivity, "Completed", Toast.LENGTH_SHORT).show()
-                            }
-
-                            override fun onNext(t: String) {
-                                Toast.makeText(this@MainActivity, "onNext " + t, Toast.LENGTH_SHORT).show()
-                            }
-
-                            override fun onError(e: Throwable) {
-                                Toast.makeText(this@MainActivity, "Error " + e.message, Toast.LENGTH_SHORT).show()
-                            }
-                        })
-        )
-
-        compositeDisposable.add(
-                observeAnimals()
-                        .filter {
-                            it.startsWith("c")
-                        }
-                        .map {
-                            it.toUpperCase()
-                        }
-                        .subscribeWith(object : DisposableObserver<String>() {
-                            override fun onComplete() {
-                                Toast.makeText(this@MainActivity, "Completed", Toast.LENGTH_SHORT).show()
-                            }
-
-                            override fun onNext(t: String) {
-                                Toast.makeText(this@MainActivity, "onNext " + t, Toast.LENGTH_SHORT).show()
-                            }
-
-                            override fun onError(e: Throwable) {
-                                Toast.makeText(this@MainActivity, "Error " + e.message, Toast.LENGTH_SHORT).show()
-                            }
-                        })
-        )
-    }
-
-    private fun observeAnimals() : Observable<String> {
-        return animalsObservable
+        Observable.range(1, 20)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
+                .filter {
+                    it % 2 == 0
+                }
+                .map {
+                    it.toString() + " is a number"
+                }
+                .subscribe(object : Observer<String> {
+                    override fun onComplete() {
+                        Toast.makeText(this@MainActivity, "data completed", Toast.LENGTH_SHORT).show()
+                    }
+
+                    override fun onSubscribe(d: Disposable) {
+                        disposable = d
+                        Toast.makeText(this@MainActivity, "subscribing...", Toast.LENGTH_SHORT).show()
+                    }
+
+                    override fun onNext(t: String) {
+                        Toast.makeText(this@MainActivity, "data " + t, Toast.LENGTH_SHORT).show()
+                    }
+
+                    override fun onError(e: Throwable) {
+                        Toast.makeText(this@MainActivity, "data error", Toast.LENGTH_SHORT).show()
+                    }
+                })
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        compositeDisposable.clear()
+        disposable?.dispose()
     }
-
 }
