@@ -22,7 +22,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val animalsObservable: Observable<String> = Observable.fromArray(
+        animalsObservable = Observable.fromArray(
                 "Ant", "Ape",
                 "Bat", "Bee", "Bear", "Butterfly",
                 "Cat", "Crab", "Cod",
