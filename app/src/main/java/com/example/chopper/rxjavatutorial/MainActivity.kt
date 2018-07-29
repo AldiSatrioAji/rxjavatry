@@ -43,7 +43,6 @@ class MainActivity : AppCompatActivity() {
 
                     override fun onNext(t: String) {
                         Toast.makeText(this@MainActivity, t + " ", Toast.LENGTH_SHORT).show()
-                        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
                     }
 
                     override fun onError(e: Throwable) {
